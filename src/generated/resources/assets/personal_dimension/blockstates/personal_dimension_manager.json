@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "personal_dimension:block/personal_dimension_manager"
+    }
+  }
+}

@@ -1,0 +1,153 @@
+plugins {
+    id 'idea'
+    id 'java-library'
+    id 'net.neoforged.moddev.legacyforge' version '2.0.91'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+legacyForge {
+    enable {
+        neoForgeVersion = project.minecraft_version + '-' + project.forge_version
+        enabledSourceSets.add sourceSets.test
+    }
+
+    validateAccessTransformers = true
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+        gameTestServer {
+            type = "gameTestServer"
+            systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        }
+        data {
+            data()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output',
+                    file('src/generated/resources/').getAbsolutePath(), '--existing',
+                    file('src/main/resources/').getAbsolutePath()
+        }
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
+    exclude '.cache/**'
+    exclude 'gameteststructures/**'
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.neoforged.net/releases' }
+    maven { url = 'https://repo.spongepowered.org/maven' }
+    flatDir {
+        name = 'local_libs'
+        dir 'libs'
+    }
+}
+
+dependencies {
+    annotationProcessor 'org.spongepowered:mixin:0.8.7:processor'
+    compileOnly 'org.jetbrains:annotations:24.0.1'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation 'org.mockito:mockito-core:5.3.1'
+    testImplementation 'org.jetbrains:annotations:24.0.1'
+}
+
+mixin {
+    add sourceSets.main, 'mixins.personal_dimension.refmap.json'
+    config 'mixins.personal_dimension.json'
+}
+
+tasks.jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes(
+                "MixinConfigs": "mixins.personal_dimension.json"
+        )
+    }
+}
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var replaceProperties = [
+            minecraft_version        : minecraft_version,
+            minecraft_version_range  : minecraft_version_range,
+            forge_version            : forge_version,
+            forge_version_range      : forge_version_range,
+            loader_version_range     : loader_version_range,
+            mod_id                   : mod_id,
+            mod_name                 : mod_name,
+            mod_license              : mod_license,
+            mod_version              : mod_version,
+            mod_authors              : mod_authors,
+            mod_description          : mod_description
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+sourceSets.main.resources.srcDir generateModMetadata
+legacyForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    maxHeapSize = '4g'
+    testLogging {
+        events 'passed', 'failed', 'skipped'
+    }
+}
+
+tasks.withType(Test).configureEach {
+    timeout.set(java.time.Duration.ofMinutes(30))
+}
+
+// GameTest 结构模板同步：1.20.1 的 GameTest 只从运行目录的 gameteststructures/ 读取结构文件。
+var syncGameTestStructures = tasks.register('syncGameTestStructures', Copy) {
+    group = 'game test'
+    description = '把 src/main/resources/gameteststructures 同步到运行目录的 gameteststructures'
+    from 'src/main/resources/gameteststructures'
+    into layout.projectDirectory.dir('run/gameteststructures')
+}
+
+tasks.matching { it.name == 'prepareGameTestServerRun' }.configureEach {
+    finalizedBy syncGameTestStructures
+}
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    dependsOn syncGameTestStructures
+}
