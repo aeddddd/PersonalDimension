@@ -1,0 +1,149 @@
+plugins {
+    id 'idea'
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.148'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
+    exclude '.cache/**'
+    exclude 'gameteststructures/**'
+}
+
+// Tests reference Minecraft types directly; ModDevGradle only puts them on the main classpath.
+sourceSets.test {
+    compileClasspath += files(layout.buildDirectory.file("moddev/artifacts/neoforge-${neo_version}-merged.jar"))
+    compileClasspath += sourceSets.main.compileClasspath
+    runtimeClasspath += files(layout.buildDirectory.file("moddev/artifacts/neoforge-${neo_version}-merged.jar"))
+    runtimeClasspath += sourceSets.main.runtimeClasspath
+}
+
+neoForge {
+    version = project.neo_version
+
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+        gameTestServer {
+            type = "gameTestServer"
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+        data {
+            data()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output',
+                    file('src/generated/resources/').getAbsolutePath(), '--existing',
+                    file('src/main/resources/').getAbsolutePath()
+        }
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+repositories {
+    maven { url = 'https://maven.neoforged.net/releases' }
+    maven { url = 'https://maven.blamejared.com/' }
+    mavenCentral()
+}
+
+dependencies {
+    // JEI 只用于开发期查看配方，运行时不强制依赖
+    compileOnly "mezz.jei:jei-1.21.1-neoforge-api:${jei_version}"
+    runtimeOnly "mezz.jei:jei-1.21.1-neoforge:${jei_version}"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation 'org.mockito:mockito-core:5.3.1'
+    testImplementation 'org.jetbrains:annotations:24.0.1'
+}
+
+tasks.jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes(
+                "MixinConfigs": "mixins.personal_dimension.json"
+        )
+    }
+}
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var replaceProperties = [
+            minecraft_version        : minecraft_version,
+            minecraft_version_range  : minecraft_version_range,
+            neo_version              : neo_version,
+            neo_version_range        : neo_version_range,
+            loader_version_range     : loader_version_range,
+            mod_id                   : mod_id,
+            mod_name                 : mod_name,
+            mod_license              : mod_license,
+            mod_version              : mod_version,
+            mod_authors              : mod_authors,
+            mod_description          : mod_description
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    maxHeapSize = '4g'
+    testLogging {
+        events 'passed', 'failed', 'skipped'
+    }
+}
+
+tasks.withType(Test).configureEach {
+    timeout.set(java.time.Duration.ofMinutes(30))
+}
+
+// GameTest 结构模板同步：1.21.1 的 GameTest 只从运行目录的 gameteststructures/ 读取结构文件。
+var syncGameTestStructures = tasks.register('syncGameTestStructures', Copy) {
+    group = 'game test'
+    description = '把 src/main/resources/gameteststructures 同步到运行目录的 gameteststructures'
+    from 'src/main/resources/gameteststructures'
+    into layout.projectDirectory.dir('run/gameteststructures')
+}
+
+tasks.matching { it.name == 'prepareGameTestServerRun' }.configureEach {
+    finalizedBy syncGameTestStructures
+}
+tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+    dependsOn syncGameTestStructures
+}

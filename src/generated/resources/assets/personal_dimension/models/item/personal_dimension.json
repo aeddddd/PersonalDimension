@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "personal_dimension:item/personal_dimension"
+  }
+}

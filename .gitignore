@@ -1,0 +1,16 @@
+/*
+!/.gitignore
+!/build.gradle
+!/settings.gradle
+!/gradle.properties
+!/gradlew
+!/gradlew.bat
+!/gradle/
+!/src/
+!/README.md
+!/README_zh.md
+!/LICENSE
+!/licenses/
+
+
+/src/generated/resources/.cache/
