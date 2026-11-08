@@ -89,7 +89,7 @@ tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes(
-                "MixinConfigs": "mixins.personal_dimension.json"
+                "MixinConfigs": "mixins.personal_plane.json"
         )
     }
 }

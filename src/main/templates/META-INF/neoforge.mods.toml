@@ -10,7 +10,7 @@ authors = "${mod_authors}"
 description = '''${mod_description}'''
 
 [[mixins]]
-config = "mixins.personal_dimension.json"
+config = "mixins.personal_plane.json"
 
 [[dependencies.${mod_id}]]
 modId = "neoforge"

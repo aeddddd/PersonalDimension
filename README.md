@@ -1,4 +1,4 @@
-# Personal Dimension
+# Personal Plane
 
 A standalone Minecraft **1.20.1 / 1.21.1 NeoForge** mod that gives players a personal flat dimension with
 custom floor presets, colors, multi-floor layouts, rules and an asynchronous recarpet pipeline.
@@ -9,7 +9,7 @@ custom floor presets, colors, multi-floor layouts, rules and an asynchronous rec
 ## Features
 
 - Personal dimension core item: create, enter and leave a personal dimension.
-- Personal Dimension Manager block: rules, floor presets/colors and layout settings.
+- Personal Plane Manager block: rules, floor presets/colors and layout settings.
 - FTB Teams integration: by default a team shares one dimension; each player can switch to a
   private personal dimension. Without FTB Teams the mod falls back to owner/OP access.
 - No bedrock, no natural mob spawning, configurable floor height, multi-floor layouts,

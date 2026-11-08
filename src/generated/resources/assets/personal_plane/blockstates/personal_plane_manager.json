@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "personal_plane:block/personal_plane_manager"
+    }
+  }
+}
