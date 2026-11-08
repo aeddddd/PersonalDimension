@@ -1,6 +1,6 @@
 {
   "values": [
-    "personal_dimension:personal_dimension_manager",
-    "personal_dimension:caution_block"
+    "personal_plane:personal_plane_manager",
+    "personal_plane:caution_block"
   ]
 }

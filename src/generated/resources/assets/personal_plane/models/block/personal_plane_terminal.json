@@ -1,0 +1,42 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#cap"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "north": {
+          "texture": "#screen"
+        },
+        "south": {
+          "texture": "#screen"
+        },
+        "up": {
+          "texture": "#cap"
+        },
+        "west": {
+          "texture": "#side"
+        }
+      },
+      "from": [
+        2,
+        0,
+        7
+      ],
+      "to": [
+        14,
+        11,
+        9
+      ]
+    }
+  ],
+  "textures": {
+    "cap": "personal_plane:block/personal_plane_terminal_top",
+    "particle": "personal_plane:block/personal_plane_terminal_side",
+    "screen": "personal_plane:block/personal_plane_terminal_screen",
+    "side": "personal_plane:block/personal_plane_terminal_side"
+  }
+}

@@ -86,15 +86,15 @@ dependencies {
 }
 
 mixin {
-    add sourceSets.main, 'mixins.personal_dimension.refmap.json'
-    config 'mixins.personal_dimension.json'
+    add sourceSets.main, 'mixins.personal_plane.refmap.json'
+    config 'mixins.personal_plane.json'
 }
 
 tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes(
-                "MixinConfigs": "mixins.personal_dimension.json"
+                "MixinConfigs": "mixins.personal_plane.json"
         )
     }
 }

@@ -1,0 +1,78 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#bottom"
+        },
+        "east": {
+          "texture": "#base_side"
+        },
+        "north": {
+          "texture": "#base_side"
+        },
+        "south": {
+          "texture": "#base_side"
+        },
+        "up": {
+          "texture": "#top"
+        },
+        "west": {
+          "texture": "#base_side"
+        }
+      },
+      "from": [
+        1,
+        0,
+        1
+      ],
+      "to": [
+        15,
+        2,
+        15
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#cap"
+        },
+        "east": {
+          "texture": "#terminal_side"
+        },
+        "north": {
+          "texture": "#screen"
+        },
+        "south": {
+          "texture": "#screen"
+        },
+        "up": {
+          "texture": "#cap"
+        },
+        "west": {
+          "texture": "#terminal_side"
+        }
+      },
+      "from": [
+        2,
+        2,
+        7
+      ],
+      "to": [
+        14,
+        13,
+        9
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "base_side": "personal_plane:block/personal_plane_manager_base_side",
+    "bottom": "personal_plane:block/personal_plane_manager_base_bottom",
+    "cap": "personal_plane:block/personal_plane_terminal_top",
+    "particle": "personal_plane:block/personal_plane_manager_base_side",
+    "screen": "personal_plane:block/personal_plane_terminal_screen",
+    "terminal_side": "personal_plane:block/personal_plane_terminal_side",
+    "top": "personal_plane:block/personal_plane_manager_base_top"
+  }
+}
